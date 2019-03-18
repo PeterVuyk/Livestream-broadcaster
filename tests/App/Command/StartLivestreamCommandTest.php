@@ -5,13 +5,12 @@ namespace App\Tests\Command;
 
 use App\Command\StartLivestreamCommand;
 use App\Entity\Camera;
-use App\Exception\Messaging\PublishMessageFailedException;
-use App\Messaging\Dispatcher\MessagingDispatcher;
+use App\Exception\Livestream\CouldNotStartLivestreamException;
 use App\Service\LivestreamService;
+use App\Service\StreamProcessing\StartLivestream;
 use App\Service\StreamProcessing\StreamStateMachine;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,31 +21,26 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * @covers ::<!public>
  * @covers ::__construct
  * @uses \App\Entity\Camera
- * @uses \App\Messaging\Library\Command\StartLivestreamCommand
  */
 class StartLivestreamCommandTest extends TestCase
 {
-    /** @var MessagingDispatcher|MockObject */
-    private $messagingDispatcher;
-
     /** @var LivestreamService|MockObject */
     private $livestreamService;
 
     /** @var StreamStateMachine|MockObject */
     private $streamStateMachine;
 
-    /** @var LoggerInterface|MockObject */
-    private $logger;
+    /** @var StartLivestream|MockObject */
+    private $startLivestream;
 
     /** @var CommandTester */
     private $commandTester;
 
     public function setUp()
     {
-        $this->messagingDispatcher = $this->createMock(MessagingDispatcher::class);
         $this->livestreamService = $this->createMock(LivestreamService::class);
         $this->streamStateMachine = $this->createMock(StreamStateMachine::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->startLivestream = $this->createMock(StartLivestream::class);
 
         $containerMock = $this->createMock(ContainerInterface::class);
         $kernelMock = $this->createMock(KernelInterface::class);
@@ -55,10 +49,9 @@ class StartLivestreamCommandTest extends TestCase
         $kernelMock->expects($this->any())->method('getContainer')->willReturn($containerMock);
 
         $startLivestreamCommand = new StartLivestreamCommand(
-            $this->messagingDispatcher,
-            $this->logger,
             $this->livestreamService,
-            $this->streamStateMachine
+            $this->streamStateMachine,
+            $this->startLivestream
         );
 
         $application = new Application($kernelMock);
@@ -77,11 +70,10 @@ class StartLivestreamCommandTest extends TestCase
         $camera->setState('inactive');
         $this->livestreamService->expects($this->once())->method('getMainCameraStatus')->willReturn($camera);
         $this->streamStateMachine->expects($this->once())->method('can')->willReturn(true);
-        $this->messagingDispatcher->expects($this->once())->method('sendMessage');
-        $this->logger->expects($this->never())->method('error');
+        $this->startLivestream->expects($this->once())->method('process');
 
         $this->commandTester->execute(
-            ['command' => StartLivestreamCommand::COMMAND_START_LIVESTREAM, 'channelName' => 'channelName']
+            ['command' => StartLivestreamCommand::COMMAND_START_LIVESTREAM]
         );
     }
 
@@ -94,13 +86,12 @@ class StartLivestreamCommandTest extends TestCase
         $camera->setState('inactive');
         $this->livestreamService->expects($this->once())->method('getMainCameraStatus')->willReturn($camera);
         $this->streamStateMachine->expects($this->once())->method('can')->willReturn(true);
-        $this->messagingDispatcher->expects($this->atLeastOnce())
-            ->method('sendMessage')
-            ->willThrowException(PublishMessageFailedException::forMessage('topic', []));
-        $this->logger->expects($this->atLeastOnce())->method('error');
+        $this->startLivestream->expects($this->atLeastOnce())
+            ->method('process')
+            ->willThrowException(CouldNotStartLivestreamException::hostNotAvailable());
 
         $this->commandTester->execute(
-            ['command' => StartLivestreamCommand::COMMAND_START_LIVESTREAM, 'channelName' => 'channelName']
+            ['command' => StartLivestreamCommand::COMMAND_START_LIVESTREAM]
         );
     }
 }

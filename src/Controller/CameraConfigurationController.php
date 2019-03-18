@@ -72,7 +72,7 @@ class CameraConfigurationController extends Controller
             } catch (CouldNotModifyCameraConfigurationException $exception) {
                 $this->flashBag->add(self::ERROR_MESSAGE, 'flash.camera_configuration.error.could_not_update');
             }
-            return new RedirectResponse($this->router->generate('camera_configuration_list'));
+            return new RedirectResponse($this->router->generate('home_page'));
         }
 
         return $this->render('configuration/list.html.twig', ['form' => $form->createView()]);

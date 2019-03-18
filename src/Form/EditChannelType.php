@@ -3,17 +3,17 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Configuration;
+use App\Entity\Channel;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
-class ConfigurationType extends AbstractType
+class EditChannelType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -23,15 +23,15 @@ class ConfigurationType extends AbstractType
     {
         $builder
             ->add(
-                'cameraConfiguration',
-                CollectionType::class,
+                'name',
+                TextType::class,
                 [
-                    'entry_type' => CameraConfigurationType::class,
-                    'entry_options' => array('label' => false),
+                    'label' => 'Naam:',
                 ]
             )
+
             ->add(
-                'submitButton',
+                'save',
                 SubmitType::class,
                 [
                     'label' => 'Save',
@@ -46,7 +46,7 @@ class ConfigurationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => Configuration::class,
+            'data_class' => Channel::class,
         ));
     }
 }

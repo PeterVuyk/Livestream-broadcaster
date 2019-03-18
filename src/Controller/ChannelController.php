@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Channel;
 use App\Exception\Repository\CouldNotModifyChannelException;
-use App\Form\CreateChannelType;
+use App\Form\EditChannelType;
 use App\Repository\ChannelRepository;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -53,32 +52,31 @@ class ChannelController extends Controller
         $this->channelRepository = $channelRepository;
     }
 
-
     /**
      * @return Response
      */
     public function channelList()
     {
-        return $this->render('channel/list.html.twig', ['channels' => $this->channelRepository->findAll()]);
+        return $this->render('channel/list.html.twig', ['channel' => $this->channelRepository->getChannel()]);
     }
 
     /**
      * @param Request $request
      * @return RedirectResponse|Response
      */
-    public function createChannel(Request $request)
+    public function editChannel(Request $request)
     {
-        $form = $this->formFactory->create(CreateChannelType::class, new Channel());
+        $form = $this->formFactory->create(EditChannelType::class, $this->channelRepository->getChannel());
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->channelRepository->save($form->getData());
-                $this->flashBag->add(self::SUCCESS_MESSAGE, 'flash.channel_management.success.channel_created');
+                $this->flashBag->add(self::SUCCESS_MESSAGE, 'Channel name successfully updated');
             } catch (CouldNotModifyChannelException $exception) {
-                $this->flashBag->add(self::ERROR_MESSAGE, 'flash.channel_management.error.failed_saving_channel');
+                $this->flashBag->add(self::ERROR_MESSAGE, 'Could not modify channel name');
             }
             return new RedirectResponse($this->router->generate('channel_list'));
         }
-        return $this->render('channel/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('channel/edit.html.twig', ['form' => $form->createView()]);
     }
 }

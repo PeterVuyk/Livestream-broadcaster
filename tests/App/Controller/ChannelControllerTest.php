@@ -70,14 +70,14 @@ class ChannelControllerTest extends TestCase
     public function testChannelList()
     {
         $this->twigMock->expects($this->once())->method('render')->willReturn('<p>hi</p>');
-        $this->channelRepositoryMock->expects($this->once())->method('findAll')->willReturn([]);
+        $this->channelRepositoryMock->expects($this->once())->method('getChannel')->willReturn(new Channel());
 
         $response = $this->channelController->channelList();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
-     * @covers ::createChannel
+     * @covers ::editChannel
      */
     public function testCreateChannelOpeningPage()
     {
@@ -88,14 +88,15 @@ class ChannelControllerTest extends TestCase
         $this->formFactoryMock->expects($this->once())->method('create')->willReturn($formMock);
 
         $this->twigMock->expects($this->once())->method('render')->willReturn('<p>hi</p>');
+        $this->channelRepositoryMock->expects($this->once())->method('getChannel');
         $this->channelRepositoryMock->expects($this->never())->method('save');
 
-        $response = $this->channelController->createChannel(new Request());
+        $response = $this->channelController->editChannel(new Request());
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
-     * @covers ::createChannel
+     * @covers ::editChannel
      */
     public function testCreateChannelSubmitForm()
     {
@@ -110,9 +111,10 @@ class ChannelControllerTest extends TestCase
         $this->formFactoryMock->expects($this->once())->method('create')->willReturn($formMock);
 
         $this->twigMock->expects($this->never())->method('render');
+        $this->channelRepositoryMock->expects($this->once())->method('getChannel');
         $this->channelRepositoryMock->expects($this->once())->method('save');
 
-        $response = $this->channelController->createChannel(new Request());
+        $response = $this->channelController->editChannel(new Request());
         $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
 }

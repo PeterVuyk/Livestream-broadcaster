@@ -5,7 +5,6 @@ Encore
     .setPublicPath('/build')
     .addEntry('app', './assets/js/app.js')
     .addEntry('favicon', './assets/images/favicon.ico')
-    .addEntry('cron-expresson', './assets/images/workflow.png')
 
     .cleanupOutputBeforeBuild()
     .enableBuildNotifications()

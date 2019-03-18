@@ -33,4 +33,12 @@ class ChannelRepository extends ServiceEntityRepository
             throw CouldNotModifyChannelException::forError($exception);
         }
     }
+
+    /**
+     * @return Channel
+     */
+    public function getChannel(): Channel
+    {
+        return current($this->findAll());
+    }
 }

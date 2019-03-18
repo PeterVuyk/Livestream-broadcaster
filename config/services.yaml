@@ -1,8 +1,3 @@
-parameters:
-    app.locales: 'en|nl'
-    locale: 'en'
-    mailer_user: 'some@mail.com'
-
 services:
     _defaults:
         autowire: true
@@ -16,10 +11,6 @@ services:
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
-
-    FOS\UserBundle\Controller\RegistrationController:
-        arguments:
-            $formFactory: '@fos_user.registration.form.factory'
 
     App\Messaging\Consumer\MessagingConsumer:
         arguments:

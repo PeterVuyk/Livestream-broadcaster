@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\User;
-use App\Exception\Repository\CouldNotModifyUserException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-class UserRepository extends ServiceEntityRepository
+class UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
     /**
      * UserRepository constructor.
@@ -21,30 +22,18 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param User $user
-     * @throws CouldNotModifyUserException
+     * @param string $username
+     * @return null|UserInterface
+     * @throws NonUniqueResultException
      */
-    public function save(User $user): void
+    public function loadUserByUsername($username): ?User
     {
-        try {
-            $this->getEntityManager()->persist($user);
-            $this->getEntityManager()->flush();
-        } catch (ORMException $exception) {
-            throw CouldNotModifyUserException::forError($exception);
-        }
-    }
-
-    /**
-     * @param User $user
-     * @throws CouldNotModifyUserException
-     */
-    public function remove(User $user): void
-    {
-        try {
-            $this->getEntityManager()->remove($user);
-            $this->getEntityManager()->flush();
-        } catch (ORMException $exception) {
-            throw CouldNotModifyUserException::forError($exception);
-        }
+        return $this->createQueryBuilder('u')
+            ->where('u.username = :username OR u.email = :email')
+            ->andWhere('u.isActive = TRUE')
+            ->setParameter('username', $username)
+            ->setParameter('email', $username)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

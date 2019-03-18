@@ -4,14 +4,10 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Exception\Repository\CouldNotFindMainCameraException;
-use App\Exception\Messaging\PublishMessageFailedException;
-use App\Messaging\Dispatcher\MessagingDispatcher;
-use App\Messaging\Library\Command\StopLivestreamCommand as MessageStopLivestreamCommand;
 use App\Service\LivestreamService;
+use App\Service\StreamProcessing\StopLivestream;
 use App\Service\StreamProcessing\StreamStateMachine;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,48 +15,36 @@ class StopLivestreamCommand extends Command
 {
     const COMMAND_STOP_LIVESTREAM = 'app:livestream-stop';
 
-    /** @var MessagingDispatcher */
-    private $messagingDispatcher;
-
-    /** @var LoggerInterface */
-    private $logger;
-
     /** @var LivestreamService */
     private $livestreamService;
 
     /** @var StreamStateMachine */
     private $streamStateMachine;
 
+    /** @var StopLivestream */
+    private $stopLivestream;
+
     /**
-     * StopLivestreamCommand constructor.
-     * @param MessagingDispatcher $messagingDispatcher
-     * @param LoggerInterface $logger
      * @param LivestreamService $livestreamService
      * @param StreamStateMachine $streamStateMachine
+     * @param StopLivestream $stopLivestream
      */
     public function __construct(
-        MessagingDispatcher $messagingDispatcher,
-        LoggerInterface $logger,
         LivestreamService $livestreamService,
-        StreamStateMachine $streamStateMachine
+        StreamStateMachine $streamStateMachine,
+        StopLivestream $stopLivestream
     ) {
         parent::__construct();
-        $this->messagingDispatcher = $messagingDispatcher;
-        $this->logger = $logger;
         $this->livestreamService = $livestreamService;
         $this->streamStateMachine = $streamStateMachine;
+        $this->stopLivestream = $stopLivestream;
     }
 
     protected function configure()
     {
         $this
             ->setName(self::COMMAND_STOP_LIVESTREAM)
-            ->setDescription('Stop the livestream.')
-            ->addArgument(
-                'channelName',
-                InputArgument::REQUIRED,
-                'The name of the channel that you would like to start'
-            );
+            ->setDescription('Stop the livestream.');
     }
 
     /**
@@ -70,24 +54,20 @@ class StopLivestreamCommand extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output): void
     {
-        $channel = $input->getArgument('channelName');
-        $output->writeln('Requested to stop livestream.');
+        $output->writeln('Stop livestream request started...');
 
         $camera = $this->livestreamService->getMainCameraStatus();
         $toStopping = $this->streamStateMachine->can($camera, 'to_stopping');
-
         if (!$toStopping) {
             $message = "tried to stop livestream while this is not possible, current state: {$camera->getState()}";
-            $this->logger->warning($message);
             $output->writeln("<error>{$message}</error>");
             return;
         }
 
         try {
-            $this->messagingDispatcher->sendMessage(MessageStopLivestreamCommand::create($channel));
-        } catch (PublishMessageFailedException $exception) {
-            $this->logger->error('Could not send stop command livestream', ['exception' => $exception]);
-            $output->writeln("<error>Could not stop livestream: {$exception->getMessage()}</error>");
+            $this->stopLivestream->process();
+        } catch (\Exception $exception) {
+            $output->writeln("<error>Could not stop livestream, exception: {$exception->getMessage()}</error>");
         }
     }
 }

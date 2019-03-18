@@ -1,12 +1,12 @@
-# Livestream Server
+# Livestream Broadcaster
 
-A livestream with user interface, Restful API and messaging. Broadcast live video content remotely to a given host.
+A livestream broadcaster with Restful API and messaging. Broadcast live video content to a remote host from example a raspberry pi.
 
 ## Getting Started
 
-This project gives you everything you need to control and stream the livestream towards a host. It is not a client to show the footage!
+This project gives you everything you need to control and stream the livestream towards a host. You can manage the channel and configurations in the user interface.
 
-Follow the installing steps to setup the server on your machine, make sure that Docker and Docker-compose is installed.
+Follow the installing steps to setup the broadcaster on your machine, make sure that Docker and Docker-compose is installed.
 
 ### Installing
 
@@ -14,13 +14,13 @@ Below procedure that tell you how to get a development environment running.
 
 1. Clone the project on your machine.
 
-        git clone https://github.com/PeterVuyk/Livestream-server.git
+        git clone https://github.com/PeterVuyk/Livestream-broadcaster.git
 
 2. Create a .env from the .env.dist file. Adapt it according to your needs.
 
         cp .env.dist .env
 
-3. Run the build file to; install the dependencies, setup the database, setup the service with docker, add the required command for the recurring schedule to crontab.
+3. Run the build file to; install the dependencies, setup the database, setup the service with docker.
 
         sh build.sh
 
@@ -54,40 +54,24 @@ Once the installation is complete, let's take a look at the docker images we hav
 $ docker-compose ps
         Name                       Command                       State                         Ports              
 ------------------------------------------------------------------------------------------------------------------
-livestream-mysql        /entrypoint.sh mysqld            Up (health: starting)   0.0.0.0:3306->3306/tcp, 33060/tcp
-livestream-nginx        nginx                            Up                      443/tcp, 0.0.0.0:8080->80/tcp    
-livestream-php          docker-php-entrypoint php-fpm    Up                      0.0.0.0:9000->9000/tcp           
-livestream-phpmyadmin   /run.sh supervisord -n -j  ...   Up                      0.0.0.0:8081->80/tcp, 9000/tcp   
-livestream-supervisor   docker-php-entrypoint /usr ...   Up                      9000/tcp                         
-livestream-yarn         node                             Up                                                       
+livestream-broadcaster-mysql        /entrypoint.sh mysqld            Up (health: starting)   0.0.0.0:3306->3306/tcp, 33060/tcp
+livestream-broadcaster-nginx        nginx                            Up                      443/tcp, 0.0.0.0:8080->80/tcp    
+livestream-broadcaster-php          docker-php-entrypoint php-fpm    Up                      0.0.0.0:9000->9000/tcp           
+livestream-broadcaster-phpmyadmin   /run.sh supervisord -n -j  ...   Up                      0.0.0.0:8081->80/tcp, 9000/tcp   
+livestream-broadcaster-supervisor   docker-php-entrypoint /usr ...   Up                      9000/tcp                         
+livestream-broadcaster-yarn         node                             Up                                                       
 ```
 
 Next open the application, you can view the application via URL `localhost:8080`, see also the image below for an impression.
-![alt text](https://github.com/PeterVuyk/Livestream-server/blob/master/assets/images/example.png)
+![alt text](https://github.com/PeterVuyk/Livestream-broadcaster/blob/master/assets/images/example.png)
 
-Ok, login with the sample account that was created by default (username: temporary, password: secret). Once you are logged in you can:
+Ok, login with the sample account that was created by default (username: temporary, password: secret). This is the same credentials for the Rest API Once you are logged in you can:
 
-- Create a new account, choose your preffered language, password etc.
-- Remove the temporary account and manage the authorized users.
 - Update the camera configurations.
-- Create your first stream schedule.
+- Update the channel name.
 - View the API Rest endpoints.
 
 Especially for the development environment we added phpMyAdmin as a container, this is available via URL `localhost:8081`.
-
-Lastly: To get used more familiar with the functionality and definitions, in the application, we added a user manual page, go to URL `localhost:8080/en/admin/manual` or click on 'manual' in the navigation bar. 
-
-## Restful API
-
-The application have a Restful API with username 'livestream_server'. If you would like to use the Restful API we advice you to update the password:
-
-Run the command below, choose for encoder `Symfony\Component\Security\Core\User\User` and fill in a secret password:
-
-    $ php bin/console security:encode-password
-
-Copy the encoded password and overwrite the existing encrypted password in the file: `security.yaml`. Key: `security.providers.in_memory.memory.users.livestream_server.password`.
-
-More information: [Symfony security - Encoding the User's Password](https://symfony.com/doc/4.0/security.html#b-configuring-how-users-are-loaded)
 
 ## Useful commands
 

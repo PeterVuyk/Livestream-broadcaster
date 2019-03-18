@@ -15,6 +15,3 @@ docker-compose up -d
 
 # Run the database migrations to setup the database tables.
 docker-compose exec php bin/console doctrine:migrations:migrate -n
-
-# Add the required cron for the schedule to crontab.
-(crontab -l ; echo "* * * * * /usr/local/bin/docker-compose -f $(pwd)/docker-compose.yml exec -T php bin/console app:scheduler-execute >/dev/null 2>&1") | sort - | uniq - | crontab -

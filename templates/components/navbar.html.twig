@@ -1,33 +1,14 @@
-{% trans_default_domain 'navigation' %}
 <div class="container">
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item {% if active_page is defined and active_page == 'schedule' %}active{% endif %}">
-                <a class="nav-link" href="{{ path('scheduler_list') }}">{{ 'navigation.schedule'|trans }}</a>
-            </li>
-            {% if app.user is not null and app.user.superAdmin == true %}
-                <li class="nav-item {% if active_page is defined and active_page == 'channels' %}active{% endif %}">
-                    <a class="nav-link" href="{{ path('channel_list') }}">{{ 'navigation.channel'|trans }}</a>
-                </li>
-            {% endif %}
             <li class="nav-item {% if active_page is defined and active_page == 'camera_configuration' %}active{% endif %}">
-                <a class="nav-link" href="{{ path('camera_configuration_list') }}">{{ 'navigation.camera_configuration'|trans }}</a>
+                <a class="nav-link" href="{{ path('home_page') }}">Configuration</a>
             </li>
-            <li class="nav-item dropdown {% if active_page is defined and active_page == 'users' %}active{% endif %}">
-                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    {{ 'navigation.users'|trans }}<span class="caret"></span>
-                </a>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ path('user_list') }}">{{ 'navigation.user_list'|trans }}</a>
-                    <a class="dropdown-item" href="{{ path('user_registration') }}">{{ 'navigation.register'|trans }}</a>
-                </div>
-                <ul class="dropdown-menu">
-                    <li class="nav-item"><a class="nav-link" href="{{ path('user_list') }}">{{ 'navigation.user_list'|trans }}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ path('user_registration') }}">{{ 'navigation.register'|trans }}</a></li>
-                </ul>
+            <li class="nav-item {% if active_page is defined and active_page == 'channel' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('channel_list') }}">Channel</a>
             </li>
-            <li class="nav-item {% if active_page is defined and active_page == 'manual' %}active{% endif %}">
-                <a class="nav-link nav " href="{{ path('manual_page') }}">{{ 'navigation.manual'|trans }}</a>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app.swagger_ui') }}">API documentation</a>
             </li>
         </ul>
         <ul class="navbar-nav pull-right">
@@ -36,17 +17,11 @@
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-user"></i>
-                        <strong>{{ app.user.channel }}</strong> - {{ app.user.username }}<span class="caret"></span>
+                        Logged in - {{ app.user.username }}<span class="caret"></span>
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{{ path('user_details', {userId: app.user.id}) }}">
-                            {{ 'navigation.personal_details'|trans }}
-                        </a>
-                        <a class="dropdown-item" href="{{ path('fos_user_change_password') }}">
-                            {{ 'navigation.change_password'|trans }}
-                        </a>
-                        <a class="dropdown-item" href="{{ path('fos_user_security_logout') }}">
-                            {{ 'navigation.sign_out'|trans }}
+                        <a class="dropdown-item" href="{{ path('logout') }}">
+                            Logout
                         </a>
                     </div>
                 </li>

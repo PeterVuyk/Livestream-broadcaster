@@ -1,0 +1,13 @@
+{% extends "base.html.twig" %}
+{% set active_page = 'channel' %}
+{% block title %}{{ 'channel.new.title'|trans }}{% endblock title %}
+
+{% block content %}
+    <h2>Edit channel name</h2>
+    {% include 'components/flash.html.twig' %}
+    {{ form_start(form) }}
+    {{ form_row(form.name) }}
+    <a href="{{ path('channel_list') }}" class="btn btn-danger" role="button">Cancel</a>
+    {{ form_widget(form.save) }}
+    {{ form_end(form) }}
+{% endblock content %}
