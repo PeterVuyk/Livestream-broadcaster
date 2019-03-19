@@ -99,7 +99,6 @@ class StopLivestreamTest extends TestCase
             ->method('getConfigurationsKeyValue')
             ->willReturn((object)$configurations);
 
-        $this->loggerMock->expects($this->atLeastOnce())->method('info');
         $this->statusLivestreamMock->expects($this->once())->method('isRunning')->willReturn(true);
 
         $this->cameraRepositoryMock->expects($this->once())->method('getMainCamera')->willReturn(new Camera());

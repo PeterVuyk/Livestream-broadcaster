@@ -7,3 +7,8 @@ status_stream:
   path: /livestream/status
   defaults: { _controller: App\Controller\Api\ApiLivestreamController:getStatusLivestream }
   methods: [GET]
+
+reset_stream:
+  path: /livestream/reset
+  defaults: { _controller: App\Controller\Api\ApiLivestreamController:resetFromFailure }
+  methods: [PUT]

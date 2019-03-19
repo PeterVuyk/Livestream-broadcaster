@@ -8,6 +8,7 @@ use App\Service\LivestreamService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\Request;
 
 class ApiLivestreamController
 {
@@ -59,5 +60,32 @@ class ApiLivestreamController
             $this->logger->error('Could not retrieve status stream via API', ['exception' => $exception->getMessage()]);
         }
         return new JsonResponse(['message' => 'something went wrong'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * @SWG\Response(
+     *     response=201,
+     *     description="Reset camera status from failure",
+     *     @SWG\Schema(
+     *             @SWG\Property(
+     *     property="success",
+     *     type="bool"
+     *       ),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=500,
+     *     description="Failed getting the status, Internal server error",
+     *     @SWG\Schema(
+     *             @SWG\Property(property="message", type="string"),
+     *     )
+     * )
+     * @SWG\Tag(name="Livestream")
+     * @return JsonResponse
+     */
+    public function resetFromFailure()
+    {
+        $this->livestreamService->resetCameraFromFailure();
+        return new JsonResponse(['success' => true], JsonResponse::HTTP_CREATED);
     }
 }

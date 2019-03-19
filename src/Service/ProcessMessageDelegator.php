@@ -8,6 +8,7 @@ use App\Messaging\Library\Command\StartLivestreamCommand;
 use App\Messaging\Library\Command\StopLivestreamCommand;
 use App\Messaging\Library\Event\CameraStateChangedEvent;
 use App\Messaging\Library\MessageInterface;
+use App\Repository\ChannelRepository;
 use App\Service\StreamProcessing\StartLivestream;
 use App\Service\StreamProcessing\StopLivestream;
 use Psr\Log\LoggerInterface;
@@ -23,20 +24,26 @@ class ProcessMessageDelegator
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var ChannelRepository */
+    private $channelRepository;
+
     /**
      * processMessageDelegator constructor.
      * @param StartLivestream $startLivestream
      * @param StopLivestream $stopLivestream
      * @param LoggerInterface $logger
+     * @param ChannelRepository $channelRepository
      */
     public function __construct(
         StartLivestream $startLivestream,
         StopLivestream $stopLivestream,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ChannelRepository $channelRepository
     ) {
         $this->startLivestream = $startLivestream;
         $this->stopLivestream = $stopLivestream;
         $this->logger = $logger;
+        $this->channelRepository = $channelRepository;
     }
 
     /**
@@ -45,6 +52,11 @@ class ProcessMessageDelegator
      */
     public function process(MessageInterface $message): void
     {
+        $channelName = $this->channelRepository->getChannel()->getName();
+        if ($message->getChannel() !== $channelName) {
+            return;
+        }
+
         switch (true) {
             case $message instanceof StartLivestreamCommand:
                 $processor = $this->startLivestream;

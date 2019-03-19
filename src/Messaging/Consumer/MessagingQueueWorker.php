@@ -7,6 +7,7 @@ use App\Exception\Messaging\InvalidMessageTypeException;
 use App\Exception\Messaging\MessagingQueueConsumerException;
 use App\Messaging\Library\MessageInterface;
 use App\Messaging\Serialize\DeserializeInterface;
+use App\Repository\ChannelRepository;
 use App\Service\ProcessMessageDelegator;
 use Psr\Log\LoggerInterface;
 

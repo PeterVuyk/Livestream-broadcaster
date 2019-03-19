@@ -38,4 +38,9 @@ interface MessageInterface
      * @return \DateTimeInterface
      */
     public function getMessageDate(): \DateTimeInterface;
+
+    /**
+     * @return string
+     */
+    public function getChannel(): string;
 }

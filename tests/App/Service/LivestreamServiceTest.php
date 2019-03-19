@@ -68,4 +68,17 @@ class LivestreamServiceTest extends TestCase
 
         $this->livestreamService->getMainCameraStatus();
     }
+
+    /**
+     * @covers ::resetCameraFromFailure
+     */
+    public function testResetCameraFromFailure()
+    {
+        $this->cameraRepositoryMock->expects($this->once())->method('getMainCamera')->willReturn(new Camera());
+        $this->streamStateMachineMock->expects($this->once())->method('can')->willReturn(true);
+        $this->streamStateMachineMock->expects($this->atLeastOnce())->method('apply');
+
+        $this->livestreamService->resetCameraFromFailure();
+        $this->addToAssertionCount(1);
+    }
 }

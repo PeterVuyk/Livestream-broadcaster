@@ -67,5 +67,13 @@ class ApiLivestreamControllerTest extends TestCase
         $this->assertSame(JsonResponse::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
     }
 
-
+    /**
+     * @covers ::resetFromFailure
+     */
+    public function testResetFromFailure()
+    {
+        $this->livestreamServiceMock->expects($this->once())->method('resetCameraFromFailure');
+        $response = $this->apiLivestreamController->resetFromFailure();
+        $this->assertSame(JsonResponse::HTTP_CREATED, $response->getStatusCode());
+    }
 }

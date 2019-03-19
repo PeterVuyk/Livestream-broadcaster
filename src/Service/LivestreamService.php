@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Entity\Camera;
 use App\Exception\Repository\CouldNotFindMainCameraException;
+use App\Exception\Repository\CouldNotModifyCameraException;
 use App\Messaging\Dispatcher\MessagingDispatcher;
 use App\Repository\CameraRepository;
 
@@ -45,5 +46,13 @@ class LivestreamService
             throw CouldNotFindMainCameraException::fromRepository();
         }
         return $camera;
+    }
+
+    public function resetCameraFromFailure(): void
+    {
+        $camera = $this->cameraRepository->getMainCamera();
+        if ($this->streamStateMachine->can($camera, 'to_inactive')) {
+            $this->streamStateMachine->apply($camera, 'to_inactive');
+        }
     }
 }
